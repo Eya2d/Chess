@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>الشطرنج</title>
+    <link rel="icon" href="./Basic-images/logo.png">
+    <!-- chess.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<style>
+* {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+body {
+    background-image: url(./Basic-images/Background.jpg);
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+button {
+    cursor: pointer;
+    outline: none;
+}
+button,div,input {
+    outline: none;
+}
+/* إظهار الفوكس فقط عند استخدام الكيبورد */
+/* button:focus-visible, div:focus-visible, input:focus-visible {
+    outline: 2px solid hsl(210 70.9% 51.6%);
+    outline-offset: 3px;
+    border-radius: 6px;
+    transition: 0.2s;
+} */
+img {
+    display: flex;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+/* logo */
+logo {
+    display: flex;
+    background-image: url(./Basic-images/logo.png);
+    background-size: cover;
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+    transform: scale(1.4);
+}
+.logo {
+    position: fixed;
+    z-index: 100;
+    cursor: pointer;
+    right: 0;
+    top: 0;
+    margin: 30px;
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: white;
+    direction: ltr;
+    display: flex;
+    text-shadow: 2px 2px 0 #482b10;
+    align-items: center;
+    filter: drop-shadow(2px 2px 3px #482b10);
+}
+.main-menu {
+    background: #f5e7d3;
+    border-radius: 32px;
+    padding: 30px 40px;
+    text-align: center;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    margin: 20px;
+}
+.main-menu h1 {
+    font-size: 2.6rem;
+    color: #3b2a1f;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 #c9aa6f;
+}
+.main-menu p {
+    color: #4a3727;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+.menu-buttons {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+.menu-btn {
+    background: #6b3e1c;
+    border: none;
+    padding: 0 32px;
+    height: 58px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f9e0a0;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    box-shadow: 0 5px 0 #3f2a13;
+}
+.menu-btn:hover {
+    transform: translateY(-2px);
+    background: #7e4e28;
+    box-shadow: 0 7px 0 #3f2a13;
+}
+.menu-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #3f2a13;
+}
+.menu-btn img {
+    height: 30px;
+}
+#store {
+    width: 100%;
+    background: #ffb100;
+    box-shadow: 0 5px 0 #e19c00;
+}
+#store:hover {
+    background: #ffb916;
+    box-shadow: 0 7px 0 #e19c00;
+}
+#store:active {
+    box-shadow: 0 2px 0 #e19c00;
+}
+#vsBotBtnDom img {
+    position: relative;
+    transform: scale(1.5);
+    left: 10px;
+    bottom: 0px;
+    filter: drop-shadow(0px 0px 1px #ffffffb0);
+}
+#twoPlayerBtnDom a {
+    position: relative;
+    width: 18px;
+    height: 55%;
+    transform: scale(1.5);
+    left: 15px;
+    filter: drop-shadow(0px 0px 1px #ffffffb0);
+}
+#twoPlayerBtnDom img {
+    position: absolute;
+}
+.game-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    border-radius: 36px;
+}
+.chess-board {
+    width: 530px;
+    height: 530px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    background-color: #e9dbbd;
+    overflow: hidden;
+    box-shadow: 0 4px 7px #2b1b0a;
+    border: 3px solid #0000;
+    background-size: cover;
+    padding: 27px 27px;
+    border-radius: 2px;
+}
+.selected {
+    background: radial-gradient(circle, rgb(255 255 255 / 0%), rgb(0 0 0 / 36%));
+    box-shadow: 0 0 5px 2px #ffffff inset, 0 0 0px 1px #00000061;
+}
+.square {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    cursor: pointer;
+    background-size: cover;
+    width: 58.5px;
+    height: 58.5px;
+}
+.square.light {
+    background-color: #f0d9b500;
+}
+.square.dark {
+    background-color: #b5886300;
+}
+.square.valid-move::after {
+    content: "";
+    position: absolute;
+    width: 58.5px;
+    height: 58.5px;
+    background: radial-gradient(circle, rgb(255 255 255 / 0%), rgb(0 0 0 / 36%));
+    pointer-events: none;
+    box-shadow: 0 0 5px 2px #ffffff inset, 0 0 0px 1px #00000061;
+}
+.piece-img {
+    width: 80%;
+    height: 74px;
+    margin-bottom: 10px;
+    object-fit: contain;
+    pointer-events: none;
+    transition: transform 0.15s ease;
+    filter: drop-shadow(0px 0px 0px #000);
+    position: relative;
+    z-index: 2;
+}
+.piece-moving {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4));
+}
+.piece-moving img {
+    width: 80%;
+    height: 74px;
+    object-fit: contain;
+}
+.info-panel {
+    background: #ffffff12;
+    padding: 12px 25px;
+    border-radius: 60px;
+    color: #eedb9b;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: -webkit-fill-available;
+    margin: 0 20px;
+}
+.turn-indicator {
+    background: #00000066;
+    padding: 0px 18px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    border-radius: 40px;
+    letter-spacing: 1px;
+}
+.turn-indicator img {
+    position: relative;
+    bottom: 8px;
+    filter: drop-shadow(0px 0px 1px black);
+    height: 28px;
+    margin-left: 10px;
+    transform: scale(1.5);
+    display: flex;
+}
+button.action-btn {
+    background: #c68b3c;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 32px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #2c1a0c;
+    font-family: inherit;
+    transition: 0.1s linear;
+}
+button.action-btn:active {
+    transform: scale(0.96);
+}
+.status {
+    background: #1f2a1b;
+    padding: 6px 18px;
+    border-radius: 32px;
+}
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+.modal-content {
+    background: #f5e7d3;
+    padding: 30px;
+    border-radius: 32px;
+    text-align: center;
+    min-width: 280px;
+    max-width: 560px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    margin: 20px;
+}
+.promotion-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+.promotion-piece {
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 10px;
+    border-radius: 16px;
+    background: #e9dbbd;
+}
+.promotion-piece:hover {
+    transform: scale(1.1);
+    background: #d4c4a0;
+}
+.promotion-piece img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0px 0px 0px #000);
+}
+.difficulty-select {
+    cursor: pointer;
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    margin: 20px 0;
+    border-radius: 12px;
+    border: 2px solid #c9aa6f;
+    outline: none;
+    background: #fff;
+    font-family: inherit;
+}
+.confirm-btn {
+    background: #6b3e1c;
+    color: #f9e0a0;
+    border: none;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+}
+@media (max-width: 650px) {
+    .info-panel {
+        font-size: 0.9rem;
+        gap: 12px;
+    }
+    .piece-moving {
+        width: calc(95vw / 8);
+        height: calc(95vw / 8);
+    }
+    .promotion-piece img {
+        width: 40px;
+        height: 40px;
+    }
+}
+.shadow-img {
+    position: absolute;
+    bottom: 9px;
+    left: 24px;
+    width: 66%;
+    height: 124%;
+    z-index: 1;
+    filter: brightness(0) blur(2px);
+    opacity: 0.5;
+    transform: rotate(30deg);
+    pointer-events: none;
+    border-radius: 0px 0px 30px 30px;
+}
+.piece-img {
+    position: relative;
+    z-index: 2;
+}
+.store-div {
+    backdrop-filter: blur(3px);
+    position: relative;
+    z-index: 10;
+    padding: 20px;
+    width: 600px;
+    height: 600px;
+    display: none;
+    flex-direction: column;
+    background: #6a3a1bcc;
+    box-shadow: 0px 3px 10px #291508;
+}
+.store-menu {
+    position: relative;
+    font-size: 26px;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+}
+.store-menu button {
+    position: absolute;
+    right: 0;
+    font-size: 51px;
+    line-height: 0;
+    height: 40px;
+    font-family: monospace;
+    font-weight: 500;
+    border: none;
+    background: #0000;
+    color: #ffffff;
+}
+.store-menu button:active {
+    opacity: .5;
+}
+.mone {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    direction: ltr;
+    left: 0;
+}
+.mone img {
+    height: 34px;
+    margin-right: 5px;
+}
+.store-products {
+    margin-top: 10px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    direction: ltr;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+    padding-top: 10px;
+    padding-bottom: 40px;
+    scrollbar-color: #ffffff70 transparent;
+}
+/* products */
+.products {
+    position: relative;
+    cursor: pointer;
+    width: 49%;
+    height: 212px;
+    background: #ffffff29;
+    font-weight: 900;
+    color: white;
+    overflow: hidden;
+    text-shadow: 0px 1px 4px #000;
+    background-image: url(./Basic-images/Background.jpg);
+    background-size: cover;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.2s ease;
+}
+.products.show {
+    opacity: 1;
+    transform: scale(1);
+}
+.products::after {
+    position: absolute;
+    z-index: 10;
+    content: '';
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    box-shadow: 0 0 0 2px #fafafa inset;
+}
+.check::after {
+    box-shadow: 0 0 0 2px #03A9F4 inset, 0 0 0 7px #76d4ff63 inset;
+}
+.products-name {
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    margin: 10px;
+    direction: ltr;
+    text-align: right;
+}
+.products-image {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px #fafafa inset;
+}
+.products-image img {
+    position: relative;
+    transition: 0.3s;
+    height: 212px;
+    transform: rotate(-13deg);
+    left: 66px;
+    top: 62px;
+    box-shadow: 0 0 0 2px #fff, -2px 2px 13px 4px #27170da8;
+}
+.products:hover .products-image img {
+    transition: 0.2s;
+    transform: rotate(-9deg);
+}
+.products-money {
+    position: absolute;
+    z-index: 10;
+    bottom: 0;
+    right: 0;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 10px;
+    box-shadow: -10px 0px 17px 20px #4126159e;
+    background: #4126159e;
+    direction: rtl;
+    border-radius: 45px 0px 0px 0px;
+}
+/* toast notification */
+.toast {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #2c1a0c;
+    color: #f9e0a0;
+    padding: 12px 28px;
+    border-radius: 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 99999;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+/* تلوين قطع الخصم المهاجمة */
+.attacking-piece {
+    position: relative;
+    background: radial-gradient(circle, rgba(255,0,0,0.5), rgba(255,0,0,0.3));
+    box-shadow: 0 0 10px red !important;
+}
+.attacking-square {
+    background: radial-gradient(circle, rgba(255,100,0,0.5), rgba(255,100,0,0.3));
+    box-shadow: 0 0 8px orange !important;
+}
+.surrounded-square {
+    background: radial-gradient(circle, rgba(128,0,128,0.5), rgba(128,0,128,0.3));
+    box-shadow: 0 0 8px purple !important;
+}
+/* تمييز مربع الكش */
+.in-check-square {
+    /* z-index: 4; */
+    background: radial-gradient(circle, rgb(255 21 21 / 0%), rgb(201 52 52 / 78%));
+    animation: checkPulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes checkPulse {
+    from { box-shadow: 0 0 10px 2px red; }
+    to   { box-shadow: 0 0 6px 4px #ff4444; }
+}
+.massge {
+    position: fixed;
+    transition: 0.3s;
+    right: 0;
+    top: 60px;
+    margin: 30px;
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    text-shadow: 2px 2px 0 #482b10;
+}
+.massge.show {
+    opacity: 1;
+}
+
+.cooff {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    margin: 30px;
+}
+.cooff a {
+    display: block;
+    margin-top: 3px;
+}
+.cooff p {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+.cooff {
+    position: fixed;
+    right: 0;
+    bottom: -149px;
+    margin: 30px;
+    font-weight: 500;
+    color: white;
+    text-shadow: 0px -145px 0, 0px -144px 3px #482b10;
+}
+.timers-panel {
+    position: absolute;
+    top: 0;
+    margin: auto;
+    width: 530px;
+    height: 530px;
+}
+.timer-box {
+    position: absolute;
+    right: -70px;
+}
+.timer-box img {
+    height: 80px;
+    display: block;
+    margin: auto;
+}
+</style>
+</head>
+<body>
+    <div class="logo"><logo></logo> الشطرنج</div>
+    <div id="app"></div>
+    <div class="massge" id="massge"></div>
+    <div class="cooff">
+        <p>مواعيد اللعب</p>
+        <a>الساعة 02:00 مساءً</a>
+        <a>الساعة 010:00 مساءً</a>
+        <a>بتوقيت مكه المكرمة</a>
+        <a>الوقت ينتهي بعد بدء وقت اللعب ب 30 دقيقة</a>
+    </div>
+
+<script>
+// ==============================
+// chess.js fallback inline (0.10.3 lite)
+// ==============================
+(function(){
+
+    let playerCoins = parseInt(localStorage.getItem('chessCoins') || '50');
+    let selectedBoard = localStorage.getItem('chessSelectedBoard') || './Basic-images/Chessboard.png';
+    let purchasedBoards = JSON.parse(localStorage.getItem('chessPurchasedBoards') || '["./Basic-images/Chessboard.png"]');
+
+    function saveCoins() { localStorage.setItem('chessCoins', playerCoins); }
+    function savePurchased() { localStorage.setItem('chessPurchasedBoards', JSON.stringify(purchasedBoards)); }
+    function saveSelectedBoard() { localStorage.setItem('chessSelectedBoard', selectedBoard); }
+    function addCoins(amount) { playerCoins += amount; saveCoins(); updateAllMoneyDisplays(); }
+    function updateAllMoneyDisplays() {
+        document.querySelectorAll('.mone span').forEach(el => { if(el) el.textContent = playerCoins; });
+    }
+    function showToast(msg) {
+        let toast = document.getElementById('toastMsg');
+        if (!toast) { toast = document.createElement('div'); toast.className = 'toast'; toast.id = 'toastMsg'; document.body.appendChild(toast); }
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ======= صوت الكش =======
+    let checkSound = null;
+    function initCheckSound() {
+        if (!checkSound) { checkSound = new Audio('./Basic-images/Lost.mp3'); checkSound.preload = 'auto'; }
+    }
+    function playCheckSound() {
+        initCheckSound();
+        if (checkSound) { checkSound.currentTime = 0; checkSound.play().catch(() => {}); }
+    }
+
+    // ======= صوت حركة القطعة =======
+    let moveSound = null;
+    function initMoveSound() {
+        if (!moveSound) { moveSound = new Audio('./Basic-images/chess-move-realistic.wav'); moveSound.preload = 'auto'; }
+    }
+    function playMoveSound() {
+        initMoveSound();
+        if (moveSound) { moveSound.currentTime = 0; moveSound.play().catch(() => {}); }
+    }
+
+    // =====================================================
+    // ======= نظام الوقت =================================
+    // =====================================================
+    let whiteTime = 0;
+    let blackTime = 0;
+    let timerInterval = null;
+
+    function startTimer() {
+        stopTimer();
+        timerInterval = setInterval(() => {
+            if (gameOver) { stopTimer(); return; }
+            if (getCurrentTurn() === 'white') whiteTime++;
+            else blackTime++;
+            updateTimerDisplays();
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+
+    function resetTimers() {
+        stopTimer();
+        whiteTime = 0;
+        blackTime = 0;
+        updateTimerDisplays();
+    }
+
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function updateTimerDisplays() {
+        const wEl = document.getElementById('whiteTimer');
+        const bEl = document.getElementById('blackTimer');
+        if (wEl) wEl.textContent = formatTime(whiteTime);
+        if (bEl) bEl.textContent = formatTime(blackTime);
+    }
+
+    // =====================================================
+
+    const storeProducts = [
+        { id: 'board1',  name: 'خشبي (بني)', img: './Basic-images/Chessboard.png',   price: 0   },
+        { id: 'board2',  name: 'خشبي (أسود)', img: './Basic-images/Chessboard11.jpg', price: 0   },
+        { id: 'board3',  name: 'لافندر (بنفسجي)', img: './Basic-images/Chessboard5.png',  price: 0   },
+        { id: 'board4',  name: 'رخامي (أزرق)', img: './Basic-images/Chessboard2.png',  price: 50  },
+        { id: 'board5',  name: 'اللؤلؤة السوداء (أسود)', img: './Basic-images/Chessboard3.png',  price: 100 },
+        { id: 'board6',  name: 'الزمرد (أخضر)', img: './Basic-images/Chessboard4.png',  price: 200 },
+        { id: 'board7',  name: 'رخامي (فضي)', img: './Basic-images/Chessboard6.png',  price: 200 },
+        { id: 'board8',  name: 'زهرة ساكورا (فوشيا)', img: './Basic-images/Chessboard7.png',  price: 175 },
+        { id: 'board9',  name: 'البيج الرملي (رملي)', img: './Basic-images/Chessboard8.png',  price: 175 },
+        { id: 'board10', name: 'الأزرق السماوي (سمواي)', img: './Basic-images/Chessboard9.png',  price: 205 },
+        { id: 'board11', name: 'الأخضر المريمي (مريمي)', img: './Basic-images/Chessboard10.png', price: 125 },
+        { id: 'board12', name: '(بني) خشبي ثلاثي أبعاد', img: './Basic-images/Chessboard13.png', price: 0   },
+        { id: 'board13', name: '(أسود) اللؤلؤة السوداء ثلاثي أبعاد', img: './Basic-images/Chessboard14.png', price: 300 },
+        { id: 'board14', name: 'الأخضر المريمي ثلاثي أبعاد (مريمي)', img: './Basic-images/Chessboard15.png', price: 300 },
+    ];
+
+    function applyBoardIdToBody(boardImg) {
+        storeProducts.forEach(p => document.body.classList.remove(p.id));
+        const product = storeProducts.find(p => p.img === boardImg);
+        if (product) document.body.classList.add(product.id);
+    }
+
+    let currentLoadTimeout = null;
+
+    function clearStoreProducts() {
+        const container = document.querySelector('.store-products');
+        if (container) container.innerHTML = '';
+    }
+
+    function scrollToSelectedProduct() {
+        const container = document.querySelector('.store-products');
+        if (!container) return;
+        const selectedIndex = storeProducts.findIndex(p => p.img === selectedBoard);
+        if (selectedIndex < 0) return;
+        const productDivs = container.querySelectorAll('.products');
+        const targetDiv = productDivs[selectedIndex];
+        if (targetDiv) {
+            setTimeout(() => { targetDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+        }
+    }
+
+    function renderStoreProductsWithDelay() {
+        return new Promise((resolve) => {
+            const container = document.querySelector('.store-products');
+            if (!container) { resolve(); return; }
+            container.innerHTML = '';
+            let currentIndex = 0;
+            function addNextProduct() {
+                if (currentIndex >= storeProducts.length) { scrollToSelectedProduct(); resolve(); return; }
+                const product = storeProducts[currentIndex];
+                const isPurchased = purchasedBoards.includes(product.img);
+                const isSelected = selectedBoard === product.img;
+                const div = document.createElement('div');
+                div.className = 'products' + (isSelected ? ' check' : '');
+                div.innerHTML = `
+                    <div class="products-name">${product.name}</div>
+                    <div class="products-image"><img src="${product.img}"></div>
+                    <div class="products-money">${product.price === 0 ? 'إفتراضي' : isPurchased ? '✔ مشترى' : product.price + ' عملة'}</div>
+                `;
+                div.addEventListener('click', (e) => { e.stopPropagation(); onProductClick(product); });
+                container.appendChild(div);
+                requestAnimationFrame(() => div.classList.add('show'));
+                currentIndex++;
+                currentLoadTimeout = setTimeout(addNextProduct, 1);
+            }
+            addNextProduct();
+        });
+    }
+
+    function updateStoreProductsStatus() {
+        const container = document.querySelector('.store-products');
+        if (!container) return;
+        container.querySelectorAll('.products').forEach((productDiv, index) => {
+            if (index < storeProducts.length) {
+                const product = storeProducts[index];
+                const isPurchased = purchasedBoards.includes(product.img);
+                const isSelected = selectedBoard === product.img;
+                if (isSelected) productDiv.classList.add('check');
+                else productDiv.classList.remove('check');
+                const moneyDiv = productDiv.querySelector('.products-money');
+                if (moneyDiv) {
+                    if (product.price === 0) moneyDiv.textContent = 'إفتراضي';
+                    else if (isPurchased) moneyDiv.textContent = '✔ مشترى';
+                    else moneyDiv.textContent = product.price + ' عملة';
+                }
+            }
+        });
+    }
+
+    function onProductClick(product) {
+        const isPurchased = purchasedBoards.includes(product.img);
+        if (isPurchased || product.price === 0) {
+            if (selectedBoard !== product.img) {
+                selectedBoard = product.img; saveSelectedBoard(); applyBoardBackground();
+                applyBoardIdToBody(selectedBoard);
+                updateStoreProductsStatus(); showToast(`✅ تم اختيار ${product.name}`);
+            } else { showToast(`✨ ${product.name} هو اللوح الحالي بالفعل`); }
+            return;
+        }
+        if (playerCoins < product.price) { showToast('❌ رصيدك غير كافٍ!'); return; }
+        playerCoins -= product.price; saveCoins();
+        purchasedBoards.push(product.img); savePurchased();
+        selectedBoard = product.img; saveSelectedBoard(); applyBoardBackground();
+        applyBoardIdToBody(selectedBoard);
+        updateAllMoneyDisplays(); updateStoreProductsStatus();
+        showToast(`✅ تم شراء ${product.name} بنجاح!`);
+    }
+
+    function applyBoardBackground() {
+        const boardDom = document.getElementById('chessBoardDom');
+        if (boardDom) { boardDom.style.backgroundImage = `url('${selectedBoard}')`; boardDom.style.backgroundSize = 'cover'; }
+    }
+
+    // =====================================================
+    // ======= التحقق من بقاء الملكين فقط =================
+    // =====================================================
+    function isOnlyKingsRemaining() {
+        const raw = chess.board();
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++) {
+                const p = raw[r][c];
+                if (p && p.type !== 'k') return false;
+            }
+        return true;
+    }
+
+    function checkGameEndConditions() {
+        if (chess.in_checkmate()) {
+            gameOver = true;
+            winner = chess.turn() === 'w' ? 'black' : 'white';
+            stopTimer();
+            handleWinReward();
+            return true;
+        }
+
+        const allMoves = chess.moves({ verbose: true });
+        if (allMoves.length === 0) {
+            gameOver = true;
+            winner = chess.turn() === 'w' ? 'black' : 'white';
+            stopTimer();
+            handleWinReward();
+            return true;
+        }
+
+        if (isOnlyKingsRemaining()) {
+            gameOver = true;
+            stopTimer();
+            if (whiteTime < blackTime)      winner = 'white';
+            else if (blackTime < whiteTime) winner = 'black';
+            else                             winner = null;
+            handleWinReward();
+            return true;
+        }
+
+        return false;
+    }
+
+    function handleWinReward() {
+        if (gameMode === 'bot' && winner === 'white') {
+            const coinsMap = {1:5, 2:10, 3:15, 4:20, 5:25};
+            const earned = coinsMap[botDifficulty] || 5;
+            addCoins(earned);
+            setTimeout(() => showToast(`🏆 فزت! +${earned} عملة`), 400);
+        }
+    }
+
+    // =====================================================
+    // ======= نظام رسائل الكش الجديد ====================
+    // =====================================================
+    let _massgeShown = false;
+
+    function showCheckMessage(msg) {
+        if (_massgeShown) return;
+        _massgeShown = true;
+        playCheckSound();
+
+        const container = document.getElementById('massge');
+        if (!container) return;
+
+        const a = document.createElement('a');
+        a.textContent = msg;
+        a.style.cssText = 'display:block;opacity:0;transition:opacity 0.35s ease;';
+        container.appendChild(a);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => { a.style.opacity = '1'; });
+        });
+
+        setTimeout(() => {
+            a.style.transition = 'opacity 0.6s ease';
+            a.style.opacity = '0';
+            setTimeout(() => {
+                if (a.parentNode) a.parentNode.removeChild(a);
+            }, 650);
+        }, 5000);
+    }
+
+    // =====================================================
+    // ======= منطق الشطرنج ===============================
+    // =====================================================
+
+    let chess = null;
+    let gameMode = null;
+    let selectedRow = null, selectedCol = null;
+    let validMoves = [];
+    let gameOver = false;
+    let winner = null;
+    let botDifficulty = 3;
+    let isAnimating = false;
+    let animationQueue = [];
+    let pendingPromotion = null;
+    let boardContainer = null;
+    let squares = Array(8).fill().map(() => Array(8));
+
+    const pieceValues = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 900 };
+
+    const baseUrl = "./Image/";
+    const imageUrls = {
+        white_king:    `${baseUrl}W1.png`, white_queen:   `${baseUrl}W2.png`,
+        white_rook1:   `${baseUrl}W3.png`, white_rook2:   `${baseUrl}W3.png`,
+        white_bishop1: `${baseUrl}W4.png`, white_bishop2: `${baseUrl}W4.png`,
+        white_knight1: `${baseUrl}W5.png`, white_knight2: `${baseUrl}W5.png`,
+        white_pawn1:   `${baseUrl}W6.png`, white_pawn2:   `${baseUrl}W6.png`,
+        white_pawn3:   `${baseUrl}W6.png`, white_pawn4:   `${baseUrl}W6.png`,
+        white_pawn5:   `${baseUrl}W6.png`, white_pawn6:   `${baseUrl}W6.png`,
+        white_pawn7:   `${baseUrl}W6.png`, white_pawn8:   `${baseUrl}W6.png`,
+        black_king:    `${baseUrl}B1.png`, black_queen:   `${baseUrl}B2.png`,
+        black_rook1:   `${baseUrl}B3.png`, black_rook2:   `${baseUrl}B3.png`,
+        black_bishop1: `${baseUrl}B4.png`, black_bishop2: `${baseUrl}B4.png`,
+        black_knight1: `${baseUrl}B5.png`, black_knight2: `${baseUrl}B5.png`,
+        black_pawn1:   `${baseUrl}B6.png`, black_pawn2:   `${baseUrl}B6.png`,
+        black_pawn3:   `${baseUrl}B6.png`, black_pawn4:   `${baseUrl}B6.png`,
+        black_pawn5:   `${baseUrl}B6.png`, black_pawn6:   `${baseUrl}B6.png`,
+        black_pawn7:   `${baseUrl}B6.png`, black_pawn8:   `${baseUrl}B6.png`,
+    };
+
+    function rowColToSquare(row, col) {
+        const files = ['a','b','c','d','e','f','g','h'];
+        return files[col] + (8 - row);
+    }
+    function squareToRowCol(sq) {
+        const files = ['a','b','c','d','e','f','g','h'];
+        return { col: files.indexOf(sq[0]), row: 8 - parseInt(sq[1]) };
+    }
+
+    function getBoardFromChess() {
+        const b = Array(8).fill(null).map(() => Array(8).fill(null));
+        const raw = chess.board();
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++) {
+                const p = raw[r][c];
+                if (p) b[r][c] = {
+                    type: pieceTypeFromChess(p.type),
+                    color: p.color === 'w' ? 'white' : 'black',
+                    chessType: p.type,
+                    imageKey: getImageKey(p.color === 'w' ? 'white' : 'black', p.type, r, c)
+                };
+            }
+        return b;
+    }
+
+    function pieceTypeFromChess(t) {
+        return { p:'pawn', n:'knight', b:'bishop', r:'rook', q:'queen', k:'king' }[t] || t;
+    }
+
+    function getImageKey(color, chessType, row, col) {
+        const c = color; const t = chessType;
+        if (t === 'k') return `${c}_king`;
+        if (t === 'q') return `${c}_queen`;
+        if (t === 'p') return `${c}_pawn${col + 1}`;
+        if (t === 'r') return col < 4 ? `${c}_rook1` : `${c}_rook2`;
+        if (t === 'n') return col < 4 ? `${c}_knight1` : `${c}_knight2`;
+        if (t === 'b') return col < 4 ? `${c}_bishop1` : `${c}_bishop2`;
+        return `${c}_${pieceTypeFromChess(t)}`;
+    }
+
+    function getValidMovesForPiece(row, col) {
+        const moves = chess.moves({ square: rowColToSquare(row, col), verbose: true });
+        return moves.map(m => squareToRowCol(m.to));
+    }
+
+    function applyMoveViaChess(fromRow, fromCol, toRow, toCol, promotion) {
+        const from = rowColToSquare(fromRow, fromCol);
+        const to   = rowColToSquare(toRow, toCol);
+        const piece = chess.get(from);
+        const needsPromotion = piece && piece.type === 'p' &&
+            ((piece.color === 'w' && toRow === 0) || (piece.color === 'b' && toRow === 7));
+
+        if (needsPromotion && !promotion) return 'need_promotion';
+
+        const moveObj = { from, to };
+        if (needsPromotion && promotion) moveObj.promotion = promotion;
+
+        const result = chess.move(moveObj);
+        if (!result) return false;
+
+        checkGameEndConditions();
+
+        return true;
+    }
+
+    function getCurrentTurn() { return chess.turn() === 'w' ? 'white' : 'black'; }
+
+    function findKingPosition(color) {
+        const raw = chess.board();
+        const chessColor = color === 'white' ? 'w' : 'b';
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++) {
+                const p = raw[r][c];
+                if (p && p.type === 'k' && p.color === chessColor) return { row: r, col: c };
+            }
+        return null;
+    }
+
+    function updateCheckHighlight() {
+        clearAttackingHighlights();
+        if (chess.in_check()) {
+            const color = getCurrentTurn();
+            const kingPos = findKingPosition(color);
+            if (kingPos) {
+                const sq = squares[kingPos.row][kingPos.col];
+                if (sq) sq.classList.add('in-check-square');
+            }
+            showCheckMessage(color === 'white' ? 'تم محاصرة الملك الأبيض' : 'تم محاصرة الملك الأسود');
+        }
+    }
+
+    function clearAttackingHighlights() {
+        for (let i = 0; i < 8; i++)
+            for (let j = 0; j < 8; j++) {
+                const sq = squares[i][j];
+                if (sq) {
+                    sq.classList.remove('attacking-piece','attacking-square','surrounded-square','in-check-square');
+                }
+            }
+    }
+
+    function renderBoard() {
+        if (!boardContainer) return;
+        const board = getBoardFromChess();
+        for (let i = 0; i < 8; i++)
+            for (let j = 0; j < 8; j++) {
+                const sq = squares[i][j];
+                if (!sq) continue;
+                const piece = board[i][j];
+                const oldImg    = sq.querySelector('.piece-img');
+                const oldShadow = sq.querySelector('.shadow-img');
+                if (oldShadow) oldShadow.remove();
+                if (oldImg)    oldImg.remove();
+                if (piece) {
+                    const imgUrl = imageUrls[piece.imageKey] || imageUrls[`${piece.color}_pawn1`];
+                    const imgElem = document.createElement('img');
+                    imgElem.src = imgUrl; imgElem.className = 'piece-img'; imgElem.draggable = false;
+                    sq.appendChild(imgElem);
+                    const shadow = document.createElement('img');
+                    shadow.src = imgUrl; shadow.className = 'shadow-img'; shadow.style.pointerEvents = 'none';
+                    sq.insertBefore(shadow, imgElem);
+                }
+                sq.classList.remove('selected','valid-move');
+                if (selectedRow === i && selectedCol === j) sq.classList.add('selected');
+                if (validMoves.some(m => m.row === i && m.col === j)) sq.classList.add('valid-move');
+            }
+        updateCheckHighlight();
+    }
+
+    function onSquareClick(row, col) {
+        if (gameOver || isAnimating || pendingPromotion) return;
+        if (gameMode === 'bot' && getCurrentTurn() !== 'white') return;
+        const board = getBoardFromChess();
+        const clickedPiece = board[row][col];
+        if (selectedRow === null) {
+            if (clickedPiece && clickedPiece.color === getCurrentTurn()) {
+                selectedRow = row; selectedCol = col;
+                validMoves = getValidMovesForPiece(row, col);
+                renderBoard();
+            }
+        } else {
+            if (row === selectedRow && col === selectedCol) {
+                selectedRow = null; selectedCol = null; validMoves = []; renderBoard(); return;
+            }
+            const isValid = validMoves.some(m => m.row === row && m.col === col);
+            if (isValid) {
+                const fRow = selectedRow, fCol = selectedCol;
+                selectedRow = null; selectedCol = null; validMoves = [];
+                animateMove(fRow, fCol, row, col, null);
+            } else if (clickedPiece && clickedPiece.color === getCurrentTurn()) {
+                selectedRow = row; selectedCol = col;
+                validMoves = getValidMovesForPiece(row, col);
+                renderBoard();
+            } else {
+                selectedRow = null; selectedCol = null; validMoves = []; renderBoard();
+            }
+        }
+    }
+
+    function animateMove(fromRow, fromCol, toRow, toCol, callback) {
+        if (isAnimating) { animationQueue.push({ fromRow, fromCol, toRow, toCol, callback }); return; }
+        const board = getBoardFromChess();
+        const pieceData = board[fromRow][fromCol];
+        if (!pieceData) { if (callback) callback(false); return; }
+        const sourceSquare = squares[fromRow][fromCol];
+        if (sourceSquare) {
+            const oi = sourceSquare.querySelector('.piece-img');
+            const os = sourceSquare.querySelector('.shadow-img');
+            if (oi) oi.style.display = 'none';
+            if (os) os.style.display = 'none';
+        }
+        isAnimating = true;
+        const boardRect = boardContainer.getBoundingClientRect();
+        const squareW   = boardRect.width / 8;
+        const startRect = squares[fromRow][fromCol].getBoundingClientRect();
+        const endRect   = squares[toRow][toCol].getBoundingClientRect();
+        const imgUrl = imageUrls[pieceData.imageKey] || imageUrls[`${pieceData.color}_pawn1`];
+        const flyingImg = document.createElement('img');
+        flyingImg.src = imgUrl; flyingImg.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+        const flyingDiv = document.createElement('div');
+        flyingDiv.className = 'piece-moving';
+        flyingDiv.style.cssText = `position:fixed;left:${startRect.left}px;top:${startRect.top}px;width:${squareW}px;height:${squareW}px;`;
+        flyingDiv.appendChild(flyingImg);
+        document.body.appendChild(flyingDiv);
+        const deltaX = endRect.left - startRect.left;
+        const deltaY = endRect.top  - startRect.top;
+        flyingDiv.style.transition = 'transform 0.22s ease-out';
+        requestAnimationFrame(() => { flyingDiv.style.transform = `translate(${deltaX}px,${deltaY}px)`; });
+        setTimeout(() => {
+            flyingDiv.remove();
+            playMoveSound();
+            const from = rowColToSquare(fromRow, fromCol);
+            const piece = chess.get(from);
+            const needsPromotion = piece && piece.type === 'p' &&
+                ((piece.color === 'w' && toRow === 0) || (piece.color === 'b' && toRow === 7));
+            if (needsPromotion) {
+                const promoColor = piece.color === 'w' ? 'white' : 'black';
+                if (gameMode === 'bot' && promoColor === 'black') {
+                    applyMoveViaChess(fromRow, fromCol, toRow, toCol, 'q');
+                    finishMove(callback);
+                } else {
+                    showPromotionDialog(promoColor, (pieceType) => {
+                        const promoMap = { queen:'q', rook:'r', bishop:'b', knight:'n' };
+                        applyMoveViaChess(fromRow, fromCol, toRow, toCol, promoMap[pieceType] || 'q');
+                        finishMove(callback);
+                    });
+                }
+            } else {
+                const result = applyMoveViaChess(fromRow, fromCol, toRow, toCol, null);
+                if (result === false) { isAnimating = false; renderBoard(); return; }
+                finishMove(callback);
+            }
+        }, 230);
+    }
+
+    function finishMove(callback) {
+        _massgeShown = false;
+        renderBoard(); updateUI();
+        isAnimating = false;
+        if (callback) callback(true);
+        if (animationQueue.length) {
+            const next = animationQueue.shift();
+            animateMove(next.fromRow, next.fromCol, next.toRow, next.toCol, next.callback);
+        } else {
+            if (gameMode === 'bot' && !gameOver && getCurrentTurn() === 'black') setTimeout(() => botMove(), 150);
+        }
+    }
+
+    function updateUI() {
+        const turnSpan   = document.getElementById('turnText');
+        const statusSpan = document.getElementById('statusText');
+        const ct = getCurrentTurn();
+        if (turnSpan) {
+            if (gameMode === 'bot') {
+                turnSpan.innerHTML = ct === 'white' ? '<img src="./Image/W1.png"> دورك' : '<img src="./Image/B1.png"> دور الروبوت';
+            } else {
+                turnSpan.innerHTML = ct === 'white' ? '<img src="./Image/W1.png"> الأبيض' : '<img src="./Image/B1.png"> الأسود';
+            }
+        }
+        if (statusSpan) {
+            if (gameOver) {
+                if (winner === 'white')      statusSpan.innerHTML = '🏆 الأبيض فاز! 🏆';
+                else if (winner === 'black') statusSpan.innerHTML = '🏆 الأسود فاز! 🏆';
+                else                          statusSpan.innerHTML = '🤝 تعادل! 🤝';
+            } else if (chess.in_checkmate()) {
+                statusSpan.innerHTML = '♚ كش مات! ♚';
+            } else if (chess.in_check()) {
+                statusSpan.innerHTML = '⚠️ كش!! ⚠️';
+            } else if (chess.in_stalemate()) {
+                statusSpan.innerHTML = '♚ حصار تام! ♚';
+            } else {
+                statusSpan.innerHTML = '🎯 جاري اللعب 🎯';
+            }
+        }
+    }
+
+    function botMove() {
+        if (gameOver || isAnimating || pendingPromotion || gameMode !== 'bot' || getCurrentTurn() !== 'black') return;
+        const moves = chess.moves({ verbose: true });
+        if (moves.length === 0) { renderBoard(); updateUI(); return; }
+        let scoredMoves = moves.map(m => ({ move: m, score: evaluateBotMove(m) }));
+        scoredMoves.sort((a, b) => b.score - a.score);
+        let bestScore = scoredMoves[0].score;
+        let bestMoves = scoredMoves.filter(sm => sm.score === bestScore);
+        let chosen = null;
+        if (botDifficulty === 1) {
+            chosen = moves[Math.floor(Math.random() * moves.length)];
+        } else {
+            const topN = botDifficulty <= 2 ? 2 : botDifficulty === 3 ? 3 : 2;
+            const pool = bestMoves.slice(0, Math.min(topN, bestMoves.length));
+            chosen = pool[Math.floor(Math.random() * pool.length)].move;
+        }
+        if (chosen) {
+            const from = squareToRowCol(chosen.from);
+            const to   = squareToRowCol(chosen.to);
+            animateMove(from.row, from.col, to.row, to.col, null);
+        }
+    }
+
+    function evaluateBotMove(move) {
+        let score = 0;
+        if (move.captured)  score += pieceValues[move.captured] * 12;
+        if (move.promotion) score += pieceValues[move.promotion] * 10;
+        chess.move(move);
+        if (chess.in_checkmate()) { chess.undo(); return 99999; }
+        if (chess.in_stalemate()) { chess.undo(); return 88888; }
+        if (chess.in_check()) score += 50 * botDifficulty;
+        const toRC = squareToRowCol(move.to);
+        chess.undo();
+        const center = (toRC.row === 3 || toRC.row === 4) && (toRC.col === 3 || toRC.col === 4);
+        if (center) score += 18 * (botDifficulty / 2);
+        if (move.piece === 'p') score += toRC.row * 3;
+        return score;
+    }
+
+    function resetGame() {
+        if (isAnimating || pendingPromotion) return;
+        chess = new Chess();
+        gameOver = false; winner = null;
+        selectedRow = null; selectedCol = null; validMoves = []; animationQueue = [];
+        _massgeShown = false;
+        const massgeContainer = document.getElementById('massge');
+        if (massgeContainer) massgeContainer.innerHTML = '';
+        resetTimers();
+        clearAttackingHighlights();
+        renderBoard(); updateUI();
+        startTimer();
+        if (gameMode === 'bot' && getCurrentTurn() === 'black') setTimeout(() => botMove(), 200);
+    }
+
+    function exitToMenu() {
+        if (isAnimating || pendingPromotion) return;
+        stopTimer();
+        const massgeContainer = document.getElementById('massge');
+        if (massgeContainer) massgeContainer.innerHTML = '';
+        document.getElementById('menuScreen').style.display = 'block';
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('store-div').style.display = 'none';
+        gameMode = null; selectedRow = null; selectedCol = null; validMoves = [];
+        _massgeShown = false;
+        clearAttackingHighlights();
+    }
+
+    function startGame(mode, diff = 3) {
+        gameMode = mode;
+        if (mode === 'bot') botDifficulty = diff;
+        chess = new Chess();
+        gameOver = false; winner = null;
+        selectedRow = null; selectedCol = null; validMoves = []; animationQueue = [];
+        pendingPromotion = null; _massgeShown = false;
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('store-div').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'flex';
+        createBoardDOM();
+        updateUI();
+        resetTimers();
+        startTimer();
+        if (gameMode === 'bot' && getCurrentTurn() === 'black') setTimeout(() => botMove(), 200);
+    }
+
+    function createBoardDOM() {
+        const wrapper = document.querySelector('.game-wrapper');
+        const oldBoard = document.getElementById('chessBoardDom');
+        if (oldBoard) oldBoard.remove();
+        const boardDiv = document.createElement('div');
+        boardDiv.id = 'chessBoardDom';
+        boardDiv.className = 'chess-board img-container';
+        boardDiv.style.backgroundImage = `url('${selectedBoard}')`;
+        boardDiv.style.backgroundSize = 'cover';
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++) {
+                const square = document.createElement('div');
+                square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                square.dataset.row = r; square.dataset.col = c;
+                square.addEventListener('mousedown', (function(row, col) {
+                    return function() { onSquareClick(row, col); };
+                })(r, c));
+                boardDiv.appendChild(square);
+                squares[r][c] = square;
+            }
+        wrapper.insertBefore(boardDiv, wrapper.firstChild);
+        boardContainer = boardDiv;
+        renderBoard();
+    }
+
+    function showPromotionDialog(color, callback) {
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'modal';
+        const pieces = [
+            { type: 'queen',  name: 'ملكة', imgKey: `${color}_queen`   },
+            { type: 'rook',   name: 'رخ',   imgKey: `${color}_rook1`   },
+            { type: 'bishop', name: 'فيل',  imgKey: `${color}_bishop1` },
+            { type: 'knight', name: 'حصان', imgKey: `${color}_knight1` }
+        ];
+        let optionsHtml = '';
+        pieces.forEach(p => {
+            optionsHtml += `<div class="promotion-piece" data-type="${p.type}"><img src="${imageUrls[p.imgKey]}" alt="${p.name}"><div>${p.name}</div></div>`;
+        });
+        modalDiv.innerHTML = `<div class="modal-content"><h3>اختر قطعة الترقية</h3><div class="promotion-options">${optionsHtml}</div></div>`;
+        document.body.appendChild(modalDiv);
+        document.querySelectorAll('.promotion-piece').forEach(el => {
+            el.onclick = () => { modalDiv.remove(); callback(el.dataset.type); };
+        });
+    }
+
+    function openStore() {
+        if (currentLoadTimeout) { clearTimeout(currentLoadTimeout); currentLoadTimeout = null; }
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'none';
+        const storeDiv = document.getElementById('store-div');
+        storeDiv.style.display = 'flex';
+        updateAllMoneyDisplays();
+        renderStoreProductsWithDelay();
+    }
+    function closeStore() {
+        if (currentLoadTimeout) { clearTimeout(currentLoadTimeout); currentLoadTimeout = null; }
+        clearStoreProducts();
+        document.getElementById('store-div').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function showDifficultyModal() {
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'modal';
+        modalDiv.innerHTML = `
+            <div class="modal-content">
+                <h3>🎯 اختر مستوى الذكاء</h3>
+                <select id="difficultySelectDom" class="difficulty-select">
+                    <option value="1">⭐ مستوى 1 - مبتدئ — الجائزة 5 عملات</option>
+                    <option value="2">⭐⭐ مستوى 2 - جيد — الجائزة 10 عملات</option>
+                    <option value="3" selected>⭐⭐⭐ مستوى 3 - جيد جدا — الجائزة 15 عملة</option>
+                    <option value="4">⭐⭐⭐⭐ مستوى 4 - ممتاز — الجائزة 20 عملة</option>
+                    <option value="5">⭐⭐⭐⭐⭐ مستوى 5 - خبير — الجائزة 25 عملة</option>
+                </select>
+                <button id="confirmDifficultyDom" class="confirm-btn menu-btn" style="margin: auto;">✔ موافق</button>
+            </div>
+        `;
+        document.body.appendChild(modalDiv);
+        modalDiv.addEventListener('mousedown', (e) => { if (e.target === modalDiv) modalDiv.remove(); });
+        document.getElementById('confirmDifficultyDom').onclick = () => {
+            let val = parseInt(document.getElementById('difficultySelectDom').value);
+            modalDiv.remove();
+            startGame('bot', val);
+        };
+    }
+
+    let loadedImages = {};
+    function preloadImages(callback) {
+        let total = Object.keys(imageUrls).length, loaded = 0;
+        for (let key in imageUrls) {
+            const img = new Image();
+            img.src = imageUrls[key];
+            img.onload = img.onerror = () => { loaded++; if (loaded === total) callback(); };
+            loadedImages[key] = img;
+        }
+    }
+
+    window.onload = () => {
+        if (typeof Chess === 'undefined') {
+            alert('⚠️ تعذّر تحميل مكتبة chess.js — تأكد من الاتصال بالإنترنت أو أضف المكتبة يدوياً.');
+            return;
+        }
+
+        initCheckSound();
+        initMoveSound();
+
+        const appDiv = document.getElementById('app');
+        appDiv.innerHTML = `
+            <div id="menuScreen" class="main-menu">
+                <h1>♜ لعبة الشطرنج ♞</h1>
+                <p>X قتال حتى النهاية X</p>
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="vsBotBtnDom"><img src="./Image/B1.png"> ضد الروبوت</button>
+                    <button class="menu-btn" id="twoPlayerBtnDom">
+                        <a><img src="./Image/W1.png"><img src="./Image/B1.png" style="transform: rotate(8deg); left: -4px;"></a>
+                        لاعبين
+                    </button>
+                </div>
+                <button class="menu-btn" id="store">المتجر</button>
+            </div>
+            <div id="store-div" class="store-div">
+                <div class="store-menu">
+                    <div class="mone"><img src="./Basic-images/mone.png"><span>${playerCoins}</span></div>
+                    سيمات اللعبة
+                    <button id="closeStoreBtnDom">×</button>
+                </div>
+                <div class="store-products"></div>
+            </div>
+            <div id="gameScreen" class="game-wrapper" style="display:none;">
+                <div class="info-panel">
+                    <div class="turn-indicator" id="turnText"><img src="./Image/W1.png"> الأبيض</div>
+                    <div class="status" id="statusText">🎯 جاري اللعب 🎯</div>
+                    <div class="timers-panel">
+                        <div class="timer-box white-timer-box" style="top: auto;bottom: 10px;">
+                            <img src="./Image/W1.png" alt="أبيض">
+                            <span id="whiteTimer">00:00</span>
+                        </div>
+                        <div class="timer-box black-timer-box" style="top: 10px;">
+                            <img src="./Image/B1.png" alt="أسود">
+                            <span id="blackTimer">00:00</span>
+                        </div>
+                    </div>
+                    <button class="action-btn" id="resetGameBtnDom">↺ إعادة</button>
+                    <button class="action-btn" id="menuExitBtnDom">🏠 المنزل</button>
+                </div>
+            </div>
+        `;
+
+        preloadImages(() => { applyBoardBackground(); applyBoardIdToBody(selectedBoard); });
+
+        document.getElementById('vsBotBtnDom').onclick     = showDifficultyModal;
+        document.getElementById('twoPlayerBtnDom').onclick = () => startGame('twoPlayer');
+        document.getElementById('store').onclick            = openStore;
+        document.getElementById('closeStoreBtnDom').onclick = closeStore;
+        document.getElementById('resetGameBtnDom').onclick  = () => { if (!isAnimating && !pendingPromotion) resetGame(); };
+        document.getElementById('menuExitBtnDom').onclick   = exitToMenu;
+        updateAllMoneyDisplays();
+    };
+
+})();
+</script>
+</body>
+</html>
